@@ -4,6 +4,7 @@ project(MyMpiProject C)
 
 set(CMAKE_CXX_STANDARD 14)
 
+# Lesson 1
 
 add_executable(1.SERIAL_TrapezoidalRule_sin Examples/Exercises/1.SERIAL_TrapezoidalRule_sin.c)
 find_package(MPI REQUIRED)
@@ -16,6 +17,7 @@ find_package(MPI REQUIRED)
 target_link_libraries(1.4.PARALLEL_TrapezoidalRule PRIVATE MPI::MPI_C)
 target_compile_options(1.4.PARALLEL_TrapezoidalRule PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
+# Lesson 2
 
 add_executable(2.2.MPI_send_recv_arrays_barrier Examples/Lesson2/2.2.MPI_send_recv_arrays_barrier.c)
 find_package(MPI REQUIRED)
@@ -51,18 +53,29 @@ find_package(MPI REQUIRED)
 target_link_libraries(2.8.PARALLEL_dot_product PRIVATE MPI::MPI_C)
 target_compile_options(2.8.PARALLEL_dot_product PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
+# Lesson 3
 
 add_executable(3.1.MPI_hello_world_PP Examples/Lesson3/3.1.MPI_hello_world_PP.c)
 find_package(MPI REQUIRED)
 target_link_libraries(3.1.MPI_hello_world_PP PRIVATE MPI::MPI_C)
-target_compile_options(3.1.MPI_hello_world_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_compile_options(3.1.MPI_hello_world_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3 -D_MPI)
 
 add_executable(3.2.MPI_send_recv_arrays_PP Examples/Lesson3/3.2.MPI_send_recv_arrays_PP.c)
 find_package(MPI REQUIRED)
 target_link_libraries(3.2.MPI_send_recv_arrays_PP PRIVATE MPI::MPI_C)
-target_compile_options(3.2.MPI_send_recv_arrays_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_compile_options(3.2.MPI_send_recv_arrays_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3 -D_MPI)
 
 add_executable(3.3.MPI_Wtime_Wtick Examples/Lesson3/3.3.MPI_Wtime_Wtick.c)
 find_package(MPI REQUIRED)
 target_link_libraries(3.3.MPI_Wtime_Wtick PRIVATE MPI::MPI_C)
 target_compile_options(3.3.MPI_Wtime_Wtick PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+
+
+add_executable(3.dgemv_SERIAL Examples/MySolutions/3.dgemv.c)
+target_compile_options(3.dgemv_SERIAL PRIVATE -Wextra --pedantic -std=c23 -march=native -O3)
+
+
+add_executable(3.dgemv_PARALLEL Examples/MySolutions/3.dgemv.c)
+find_package(MPI REQUIRED)
+target_link_libraries(3.dgemv_PARALLEL PRIVATE MPI::MPI_C)
+target_compile_options(3.dgemv_PARALLEL PRIVATE -Wextra --pedantic -std=c23 -march=native -O3 -D_MPI)
