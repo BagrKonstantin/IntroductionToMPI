@@ -2,6 +2,9 @@
 #include <math.h>
 #include <mpi.h>
 
+# define M_PI           3.14159265358979323846  /* pi */
+
+
 // Define a function to be integrated
 double my_function(double *x)
 {
