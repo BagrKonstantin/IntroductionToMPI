@@ -4,78 +4,122 @@ project(MyMpiProject C)
 
 set(CMAKE_CXX_STANDARD 14)
 
-# Lesson 1
+## Lesson 1
+#
+#add_executable(1.SERIAL_TrapezoidalRule_sin Examples/Exercises/1.SERIAL_TrapezoidalRule_sin.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(1.SERIAL_TrapezoidalRule_sin PRIVATE MPI::MPI_C)
+#target_compile_options(1.SERIAL_TrapezoidalRule_sin PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+#
+#add_executable(1.4.PARALLEL_TrapezoidalRule Examples/MySolutions/1.4.PARALLEL_TrapezoidalRule.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(1.4.PARALLEL_TrapezoidalRule PRIVATE MPI::MPI_C)
+#target_compile_options(1.4.PARALLEL_TrapezoidalRule PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+## Lesson 2
+#
+#add_executable(2.2.MPI_send_recv_arrays_barrier Examples/Lesson2/2.2.MPI_send_recv_arrays_barrier.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(2.2.MPI_send_recv_arrays_barrier PRIVATE MPI::MPI_C)
+#target_compile_options(2.2.MPI_send_recv_arrays_barrier PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+#
+#add_executable(2.3.MPI_send_recv_arrays_dataloss Examples/Lesson2/2.3.MPI_send_recv_arrays_dataloss.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(2.3.MPI_send_recv_arrays_dataloss PRIVATE MPI::MPI_C)
+#target_compile_options(2.3.MPI_send_recv_arrays_dataloss PRIVATE)
+#
+#
+#add_executable(2.5.MPI_bsend_recv_arrays Examples/Lesson2/2.5.MPI_bsend_recv_arrays.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(2.5.MPI_bsend_recv_arrays PRIVATE MPI::MPI_C)
+#target_compile_options(2.5.MPI_bsend_recv_arrays PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+#add_executable(2.7.MPI_rsend_recv_arrays Examples/Lesson2/2.7.MPI_rsend_recv_arrays.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(2.7.MPI_rsend_recv_arrays PRIVATE MPI::MPI_C)
+#target_compile_options(2.7.MPI_rsend_recv_arrays PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+#
+#add_executable(2.SERIAL_dot_product Examples/Exercises/2.SERIAL_dot_product.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(2.SERIAL_dot_product PRIVATE MPI::MPI_C)
+#target_compile_options(2.SERIAL_dot_product PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+#
+#add_executable(2.8.PARALLEL_dot_product Examples/MySolutions/2.8.PARALLEL_dot_product.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(2.8.PARALLEL_dot_product PRIVATE MPI::MPI_C)
+#target_compile_options(2.8.PARALLEL_dot_product PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+## Lesson 3
+#
+#add_executable(3.1.MPI_hello_world_PP Examples/Lesson3/3.1.MPI_hello_world_PP.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(3.1.MPI_hello_world_PP PRIVATE MPI::MPI_C)
+#target_compile_options(3.1.MPI_hello_world_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3 -D_MPI)
+#
+#add_executable(3.2.MPI_send_recv_arrays_PP Examples/Lesson3/3.2.MPI_send_recv_arrays_PP.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(3.2.MPI_send_recv_arrays_PP PRIVATE MPI::MPI_C)
+#target_compile_options(3.2.MPI_send_recv_arrays_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3 -D_MPI)
+#
+#add_executable(3.3.MPI_Wtime_Wtick Examples/Lesson3/3.3.MPI_Wtime_Wtick.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(3.3.MPI_Wtime_Wtick PRIVATE MPI::MPI_C)
+#target_compile_options(3.3.MPI_Wtime_Wtick PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+#
+#
+#add_executable(3.dgemv_SERIAL Examples/MySolutions/3.dgemv.c)
+#target_compile_options(3.dgemv_SERIAL PRIVATE -Wextra --pedantic -std=c23 -march=native -O3)
+#
+#
+#add_executable(3.dgemv_PARALLEL Examples/MySolutions/3.dgemv.c)
+#find_package(MPI REQUIRED)
+#target_link_libraries(3.dgemv_PARALLEL PRIVATE MPI::MPI_C)
+#target_compile_options(3.dgemv_PARALLEL PRIVATE -Wextra --pedantic -std=c23 -march=native -O3 -D_MPI)
 
-add_executable(1.SERIAL_TrapezoidalRule_sin Examples/Exercises/1.SERIAL_TrapezoidalRule_sin.c)
+# Lesson 4
+
+add_executable(4.1.MPI_Bcast Examples/Lesson4/4.1.MPI_Bcast.c)
 find_package(MPI REQUIRED)
-target_link_libraries(1.SERIAL_TrapezoidalRule_sin PRIVATE MPI::MPI_C)
-target_compile_options(1.SERIAL_TrapezoidalRule_sin PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_link_libraries(4.1.MPI_Bcast PRIVATE MPI::MPI_C)
+target_compile_options(4.1.MPI_Bcast PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
-
-add_executable(1.4.PARALLEL_TrapezoidalRule Examples/MySolutions/1.4.PARALLEL_TrapezoidalRule.c)
+add_executable(4.2.MPI_Reduce Examples/Lesson4/4.2.MPI_Reduce.c)
 find_package(MPI REQUIRED)
-target_link_libraries(1.4.PARALLEL_TrapezoidalRule PRIVATE MPI::MPI_C)
-target_compile_options(1.4.PARALLEL_TrapezoidalRule PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_link_libraries(4.2.MPI_Reduce PRIVATE MPI::MPI_C)
+target_compile_options(4.2.MPI_Reduce PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
-# Lesson 2
-
-add_executable(2.2.MPI_send_recv_arrays_barrier Examples/Lesson2/2.2.MPI_send_recv_arrays_barrier.c)
+add_executable(4.3.MPI_Reduce_IN_PLACE Examples/Lesson4/4.3.MPI_Reduce_IN_PLACE.c)
 find_package(MPI REQUIRED)
-target_link_libraries(2.2.MPI_send_recv_arrays_barrier PRIVATE MPI::MPI_C)
-target_compile_options(2.2.MPI_send_recv_arrays_barrier PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_link_libraries(4.3.MPI_Reduce_IN_PLACE PRIVATE MPI::MPI_C)
+target_compile_options(4.3.MPI_Reduce_IN_PLACE PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
-
-add_executable(2.3.MPI_send_recv_arrays_dataloss Examples/Lesson2/2.3.MPI_send_recv_arrays_dataloss.c)
+add_executable(4.4.MPI_Allreduce Examples/Lesson4/4.4.MPI_Allreduce.c)
 find_package(MPI REQUIRED)
-target_link_libraries(2.3.MPI_send_recv_arrays_dataloss PRIVATE MPI::MPI_C)
-target_compile_options(2.3.MPI_send_recv_arrays_dataloss PRIVATE)
+target_link_libraries(4.4.MPI_Allreduce PRIVATE MPI::MPI_C)
+target_compile_options(4.4.MPI_Allreduce PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
-
-add_executable(2.5.MPI_bsend_recv_arrays Examples/Lesson2/2.5.MPI_bsend_recv_arrays.c)
+add_executable(1.MPI_TrapezoidalRule_cos_SOLUTION Examples/Solutions/1.MPI_TrapezoidalRule_cos.c)
 find_package(MPI REQUIRED)
-target_link_libraries(2.5.MPI_bsend_recv_arrays PRIVATE MPI::MPI_C)
-target_compile_options(2.5.MPI_bsend_recv_arrays PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_link_libraries(1.MPI_TrapezoidalRule_cos_SOLUTION PRIVATE MPI::MPI_C)
+target_compile_options(1.MPI_TrapezoidalRule_cos_SOLUTION PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
-add_executable(2.7.MPI_rsend_recv_arrays Examples/Lesson2/2.7.MPI_rsend_recv_arrays.c)
+add_executable(2.MPI_DotProduct_SOLUTION Examples/Solutions/2.MPI_DotProduct.c)
 find_package(MPI REQUIRED)
-target_link_libraries(2.7.MPI_rsend_recv_arrays PRIVATE MPI::MPI_C)
-target_compile_options(2.7.MPI_rsend_recv_arrays PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_link_libraries(2.MPI_DotProduct_SOLUTION PRIVATE MPI::MPI_C)
+target_compile_options(2.MPI_DotProduct_SOLUTION PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
 
-add_executable(2.SERIAL_dot_product Examples/Exercises/2.SERIAL_dot_product.c)
+add_executable(4.TrapezoidalRule_cos_reduce Examples/MySolutions/4.TrapezoidalRule_cos_reduce.c)
 find_package(MPI REQUIRED)
-target_link_libraries(2.SERIAL_dot_product PRIVATE MPI::MPI_C)
-target_compile_options(2.SERIAL_dot_product PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+target_link_libraries(4.TrapezoidalRule_cos_reduce PRIVATE MPI::MPI_C)
+target_compile_options(4.TrapezoidalRule_cos_reduce PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
 
 
-add_executable(2.8.PARALLEL_dot_product Examples/MySolutions/2.8.PARALLEL_dot_product.c)
+add_executable(4.dot_product_reduce Examples/MySolutions/4.dot_product_reduce.c)
 find_package(MPI REQUIRED)
-target_link_libraries(2.8.PARALLEL_dot_product PRIVATE MPI::MPI_C)
-target_compile_options(2.8.PARALLEL_dot_product PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
-
-# Lesson 3
-
-add_executable(3.1.MPI_hello_world_PP Examples/Lesson3/3.1.MPI_hello_world_PP.c)
-find_package(MPI REQUIRED)
-target_link_libraries(3.1.MPI_hello_world_PP PRIVATE MPI::MPI_C)
-target_compile_options(3.1.MPI_hello_world_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3 -D_MPI)
-
-add_executable(3.2.MPI_send_recv_arrays_PP Examples/Lesson3/3.2.MPI_send_recv_arrays_PP.c)
-find_package(MPI REQUIRED)
-target_link_libraries(3.2.MPI_send_recv_arrays_PP PRIVATE MPI::MPI_C)
-target_compile_options(3.2.MPI_send_recv_arrays_PP PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3 -D_MPI)
-
-add_executable(3.3.MPI_Wtime_Wtick Examples/Lesson3/3.3.MPI_Wtime_Wtick.c)
-find_package(MPI REQUIRED)
-target_link_libraries(3.3.MPI_Wtime_Wtick PRIVATE MPI::MPI_C)
-target_compile_options(3.3.MPI_Wtime_Wtick PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
-
-
-add_executable(3.dgemv_SERIAL Examples/MySolutions/3.dgemv.c)
-target_compile_options(3.dgemv_SERIAL PRIVATE -Wextra --pedantic -std=c23 -march=native -O3)
-
-
-add_executable(3.dgemv_PARALLEL Examples/MySolutions/3.dgemv.c)
-find_package(MPI REQUIRED)
-target_link_libraries(3.dgemv_PARALLEL PRIVATE MPI::MPI_C)
-target_compile_options(3.dgemv_PARALLEL PRIVATE -Wextra --pedantic -std=c23 -march=native -O3 -D_MPI)
+target_link_libraries(4.dot_product_reduce PRIVATE MPI::MPI_C)
+target_compile_options(4.dot_product_reduce PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
