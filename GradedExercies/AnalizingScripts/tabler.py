@@ -4,8 +4,8 @@ import csv
 
 # Define the list of MPI processes and file paths
 mpi_values = [1, 2, 4, 8, 16, 32, 64, 128]
-directory = "run"
-csv_filename = "mpi_results.csv"
+directory = "../Run"
+csv_filename = "../Run/mpi_results.csv"
 
 # Define CSV columns
 headers = [

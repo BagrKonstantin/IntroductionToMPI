@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 
 # Define the list of MPI processes
 mpi_values = [1, 2, 4, 8, 16, 32, 64, 128]
-directory = "run"
+directory = "../Run"
 data = []
 
 # Parse the files
@@ -64,6 +64,6 @@ else:
 
     # Save and display the plot
     plt.tight_layout()
-    plt.savefig('mpi_performance_plot.png', dpi=300)
+    plt.savefig('../Run/mpi_performance_plot.png', dpi=300)
     print("\nPlot successfully saved as 'mpi_performance_plot.png'.")
     plt.show()
