@@ -123,3 +123,22 @@ add_executable(4.dot_product_reduce Examples/MySolutions/4.dot_product_reduce.c)
 find_package(MPI REQUIRED)
 target_link_libraries(4.dot_product_reduce PRIVATE MPI::MPI_C)
 target_compile_options(4.dot_product_reduce PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+
+# Lesson 5
+add_executable(5.1.MPI_dgemv Examples/Lesson5/5.1.MPI_dgemv.c)
+find_package(MPI REQUIRED)
+target_link_libraries(5.1.MPI_dgemv PRIVATE MPI::MPI_C)
+target_compile_options(5.1.MPI_dgemv PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+
+# HW1
+add_executable(homework GradedExercies/MPI_HW1.c)
+find_package(MPI REQUIRED)
+target_link_libraries(homework PRIVATE MPI::MPI_C)
+target_compile_options(homework PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
+
+
+# HW1
+add_executable(homeworkv2 Examples/Solutions/HW1_IMPI.c)
+find_package(MPI REQUIRED)
+target_link_libraries(homeworkv2 PRIVATE MPI::MPI_C)
+target_compile_options(homeworkv2 PRIVATE -Wextra --pedantic -std=c23 -march=native -DNDEBUG -O3)
