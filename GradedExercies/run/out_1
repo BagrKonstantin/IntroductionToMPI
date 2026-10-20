@@ -1,0 +1,5 @@
+Norm of the output vector is : 49054.3079920942
+Average intiialization time per rank: 0.612840 seconds
+Average calculation time per rank   : 0.239046 seconds
+Average reduction time per rank     : 0.000069 seconds
+Average Total time per rank         : 0.851955 seconds
