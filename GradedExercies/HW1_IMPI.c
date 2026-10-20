@@ -1,9 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <math.h>
-#include "../Examples/Libraries/arrays.h"
+#include "Libraries/arrays.h"
 #include "mpi.h"
-#include "../Examples/Libraries/linearalgebra.h"
+#include "Libraries/linearalgebra.h"
 
 int main(int argc, char *argv[])
 {
