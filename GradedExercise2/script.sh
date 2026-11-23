@@ -9,5 +9,5 @@
 module load toolchain/foss
 export OMP_NUM_THREADS= $SLURM_CPUS_PER_TASK
 for i in 1 2 4 8 16 32 64 128 ; do
-srun -n $i HW1_IMPI.exe > out_$i
+srun -n $i HW2_IMPI.exe > out_$i
 done
