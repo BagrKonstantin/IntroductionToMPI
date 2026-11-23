@@ -28,7 +28,7 @@ To successfully compile and run this program, you need:
 
 1. **MPI Library**: An MPI implementation (e.g., OpenMPI, Intel MPI, MPICH) providing the `mpicc` wrapper and `mpi.h`.
 2. **C Standard Math Library**: The standard math library (`-lm`).
-3. **Custom Libraries**: The `Libraries/` folder containing `arrays.h` and `linearalgebra.h` must reside in the same directory as `HW1_IMPI.c`.
+3. **Custom Libraries**: The `Libraries` folder containing `arrays.h` and `linearalgebra.h` must reside in the same directory as `HW1_IMPI.c`.
 
 ---
 
