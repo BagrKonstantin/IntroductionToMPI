@@ -1,4 +1,5 @@
 #include <math.h>
+#include <mpi.h>
 #include <stdio.h>
 #include "Libraries/arrays.h"
 
@@ -9,6 +10,13 @@
 #define L 1.0              // Length of the side of the plane
 
 int main() {
+    MPI_Init(NULL, NULL);
+    int num_of_ranks;
+    MPI_Comm_size(MPI_COMM_WORLD, &num_of_ranks);
+    int mpi_rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
+
+
     double dx = L / (N_GRID_POINTSX + 1);
     double dy = L / (N_GRID_POINTSY + 1);
     // Choose dt to satisfy stability criterion for explicit Euler: r = D * dt / dx^2 <= 0.5
@@ -37,6 +45,24 @@ int main() {
         u[i][0] = 0.0;
         u[i][N_GRID_POINTSY + 1] = 0.0;
     }
+
+
+    int ranks_per_dims[2] = {3, 4};  // 3x4 grid (12 processes)
+    int periods[2] = {0, 0};         // Non-periodic boundaries
+    int reorder = 1;
+    MPI_Comm MPI_COMM_2D;
+
+    // Create 2D Cartesian Communicator
+    MPI_Cart_create(MPI_COMM_WORLD, 2, ranks_per_dims, periods, reorder, &MPI_COMM_2D);
+
+    int rank, coords[2], left, right, up, down;
+    MPI_Comm_rank(MPI_COMM_2D, &mpi_rank);
+    // Find the coordinates of a give rank
+    MPI_Cart_coords(MPI_COMM_2D, mpi_rank, 2, coords);
+
+    // Find neighbors along dimension 1 (columns) 0 (rows)
+    MPI_Cart_shift(MPI_COMM_2D, 0, 1, &left, &right);
+    MPI_Cart_shift(MPI_COMM_2D, 1, 1, &down, &up);
 
     for (int step = 1; step <= N_TEMP_STEPS; step++) {
         // Update interior grid points
