@@ -70,6 +70,30 @@ int main() {
     MPI_Type_vector(N_GRID_POINTSY / ranks_dimensions, N_GRID_POINTSX / ranks_dimensions, N_GRID_POINTSX, MPI_DOUBLE, &MPI_SUBMAT);
     MPI_Type_commit(&MPI_SUBMAT);
 
+    // Send part of matrix to ranks
+    int rows = N_GRID_POINTSX / ranks_dimensions;
+    int cols = N_GRID_POINTSY / ranks_dimensions;
+
+    double** matrix_piece;
+
+    if (mpi_rank == 0) {
+        for (int i = 0; i < ranks_dimensions; i++) {
+            for (int j = 0; j < ranks_dimensions; j++) {
+                MPI_Send(&u[i * rows][j * cols], 1, MPI_SUBMAT, i * ranks_dimensions + j, i * ranks_dimensions + j, MPI_COMM_WORLD);
+            }
+        }
+    }else
+    {
+        matrix_piece = allocate_2d_double(&rows, &cols);
+        MPI_Recv(&matrix_piece[0][0], 1, MPI_SUBMAT, 0, mpi_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+    }
+
+    // send common values
+
+    // receive values
+
+    // calculate new values
+
     for (int step = 1; step <= N_TEMP_STEPS; step++) {
         // Update interior grid points
         for (int i = 1; i <= N_GRID_POINTSX; i++) {
