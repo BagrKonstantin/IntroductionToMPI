@@ -25,9 +25,12 @@ endfunction()
 #add_mpi_folder("Examples/Lesson4")
 #add_mpi_folder("Examples/Lesson5")
 #add_mpi_folder("Examples/Lesson6")
+#add_mpi_folder("Examples/Lesson8")
+#add_mpi_folder("Examples/Lesson9")
+add_mpi_folder("Examples/Lesson10")
 
-add_mpi_folder("Examples/Lesson8")
-add_mpi_folder("Examples/Lesson9")
+#add_mpi_folder("GradedExercise1")
+add_mpi_folder("GradedExercise2")
 
 
 add_mpi_folder("Examples/Solutions")
