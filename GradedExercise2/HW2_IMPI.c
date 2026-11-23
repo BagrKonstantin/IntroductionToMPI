@@ -46,8 +46,9 @@ int main() {
         u[i][N_GRID_POINTSY + 1] = 0.0;
     }
 
+    int ranks_dimensions = (int) sqrt(num_of_ranks);
     // TODO fix dimensions
-    int ranks_per_dims[2] = {sqrt(num_of_ranks), sqrt(num_of_ranks)};  // 3x4 grid (12 processes)
+    int ranks_per_dims[2] = {ranks_dimensions, ranks_dimensions};  // 3x4 grid (12 processes)
     int periods[2] = {0, 0};         // Non-periodic boundaries
     int reorder = 1;
     MPI_Comm MPI_COMM_2D;
@@ -66,7 +67,7 @@ int main() {
 
     // Create a type to send piece of matrix
     MPI_Datatype MPI_SUBMAT;
-    MPI_Type_vector(N_GRID_POINTSY / sqrt(num_of_ranks), N_GRID_POINTSX / sqrt(num_of_ranks), N_GRID_POINTSX, MPI_DOUBLE, &MPI_SUBMAT);
+    MPI_Type_vector(N_GRID_POINTSY / ranks_dimensions, N_GRID_POINTSX / ranks_dimensions, N_GRID_POINTSX, MPI_DOUBLE, &MPI_SUBMAT);
     MPI_Type_commit(&MPI_SUBMAT);
 
     for (int step = 1; step <= N_TEMP_STEPS; step++) {
