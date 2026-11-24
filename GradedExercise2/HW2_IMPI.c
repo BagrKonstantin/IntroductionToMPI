@@ -48,6 +48,20 @@ int main() {
     MPI_Type_vector(rows, cols, cols, MPI_DOUBLE, &MPI_RECV_SUBMAT);
     MPI_Type_commit(&MPI_RECV_SUBMAT);
 
+    MPI_Datatype MPI_SEND_ROW, MPI_RECV_ROW, MPI_SEND_COL, MPI_RECV_COL;
+
+    MPI_Type_contiguous(cols, MPI_DOUBLE, &MPI_SEND_ROW);
+    MPI_Type_commit(&MPI_SEND_ROW);
+
+    MPI_Type_contiguous(cols, MPI_DOUBLE, &MPI_RECV_ROW);
+    MPI_Type_commit(&MPI_RECV_ROW);
+
+    MPI_Type_vector(rows, 1, N_GRID_POINTSX + 2, MPI_DOUBLE, &MPI_SEND_COL);
+    MPI_Type_commit(&MPI_SEND_COL);
+
+    MPI_Type_vector(rows, 1, N_GRID_POINTSX + 2, MPI_DOUBLE, &MPI_RECV_COL);
+    MPI_Type_commit(&MPI_RECV_COL);
+
     // Send part of matrix to ranks
 
     double** matrix_piece = allocate_2d_packed_double(&rows, &cols);
