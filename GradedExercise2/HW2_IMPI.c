@@ -17,15 +17,6 @@ int main() {
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
 
-    // for (int i = 0; i < N_GRID_POINTSY; i++) {
-    //     u[0][i] = 0.0;
-    //     u[N_GRID_POINTSX][i] = 0.0;
-    // }
-    // for (int i = 0; i < N_GRID_POINTSX; i++) {
-    //     u[i][0] = 0.0;
-    //     u[i][N_GRID_POINTSY] = 0.0;
-    // }
-
     int ranks_dimensions = 2;
     // TODO fix dimensions
     int ranks_per_dims[2] = {ranks_dimensions, ranks_dimensions}; // 3x4 grid (12 processes)
@@ -46,7 +37,6 @@ int main() {
     MPI_Cart_shift(MPI_COMM_2D, 1, 1, &down, &up);
 
 
-
     // Create a type to send piece of matrix
     int rows = N_GRID_POINTSY / ranks_dimensions + 2;
     int cols = N_GRID_POINTSX / ranks_dimensions + 2;
@@ -60,18 +50,18 @@ int main() {
 
     // Send part of matrix to ranks
 
-
-
-
     double** matrix_piece = allocate_2d_packed_double(&rows, &cols);
+    double** matrix_piece_new = allocate_2d_packed_double(&rows, &cols);
+
+    double dx = L / (N_GRID_POINTSX + 1);
+    double dy = L / (N_GRID_POINTSY + 1);
+    // Choose dt to satisfy stability criterion for explicit Euler: r = D * dt / dx^2 <= 0.5
+    double dt = 0.124 / D * ((dx * dx) + (dy * dy));
+    double rx = D * dt / (dx * dx);
+    double ry = D * dt / (dy * dy);
 
     if (mpi_rank == 0) {
-        double dx = L / (N_GRID_POINTSX + 1);
-        double dy = L / (N_GRID_POINTSY + 1);
-        // Choose dt to satisfy stability criterion for explicit Euler: r = D * dt / dx^2 <= 0.5
-        double dt = 0.124 / D * ((dx * dx) + (dy * dy));
-        double rx = D * dt / (dx * dx);
-        double ry = D * dt / (dy * dy);
+
 
         int num_elementsx = N_GRID_POINTSX + 2;
         int num_elementsy = N_GRID_POINTSY + 2;
@@ -84,6 +74,15 @@ int main() {
                 double y = j * dy;
                 u[i][j] = sin(M_PI * x) * sin(M_PI * y);
             }
+        }
+
+        for (int i = 0; i <= N_GRID_POINTSY + 1; i++) {
+            u[0][i] = 0.0;
+            u[N_GRID_POINTSX + 1][i] = 0.0;
+        }
+        for (int i = 0; i <= N_GRID_POINTSX + 1; i++) {
+            u[i][0] = 0.0;
+            u[i][N_GRID_POINTSY + 1] = 0.0;
         }
 
         for (int i = 0; i < ranks_dimensions; i++) {
@@ -105,13 +104,27 @@ int main() {
     }
 
 
-    // send common values
+    for (int step = 1; step <= N_TEMP_STEPS; step++)
+    {
+        // Update interior grid points
+        for (int i = 1; i <= rows - 2; i++) {
+            for (int j = 1; j <= cols - 2; j++) {
+                matrix_piece_new[i][j] = matrix_piece[i][j] +
+                    rx * (matrix_piece[i+1][j] - 2.0 * matrix_piece[i][j] + matrix_piece[i-1][j]) +
+                    ry * (matrix_piece[i][j+1] - 2.0 * matrix_piece[i][j] + matrix_piece[i][j-1]);
+            }
+        }
 
-    // receive values
+        double **temp = matrix_piece;
+        matrix_piece = matrix_piece_new;
+        matrix_piece_new = temp;
 
-    // calculate new values
 
+        // send common values
 
+        // receive values
+
+    }
 
 
     for (int i = 0; i < num_of_ranks; i++) {
