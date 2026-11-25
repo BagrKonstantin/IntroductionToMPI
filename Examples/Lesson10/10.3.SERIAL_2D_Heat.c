@@ -28,7 +28,7 @@ int main()
         double x = i * dx;
         for (int j = 1; j <= N_GRID_POINTSY; j++) {
             double y = j * dy;
-            u[i][j] =sin(M_PI * x)*sin(M_PI * y); 
+            u[i][j] =sin(M_PI * x)*sin(M_PI * y);
         }
     }
     for (int i = 0; i <= N_GRID_POINTSY+1; i++) {
@@ -57,7 +57,7 @@ int main()
 
     for (int i=0;i<num_elementsy; i++){
         for (int j=0;j<num_elementsx; j++){
-            printf("%10.5f\n", u[i][j]);
+            printf("%10.5f\t", u[i][j]);
         }
         printf("\n");
     }

@@ -25,10 +25,16 @@ int main() {
     int reorder = 1;
     MPI_Comm MPI_COMM_2D;
 
+    if (N_GRID_POINTSY % ranks_per_dims[0] || N_GRID_POINTSX % ranks_per_dims[1])
+    {
+        MPI_Finalize();
+        return 0;
+    }
+
     // Create 2D Cartesian Communicator
     MPI_Cart_create(MPI_COMM_WORLD, 2, ranks_per_dims, periods, reorder, &MPI_COMM_2D);
 
-    int rank, coords[2], left, right, up, down;
+    int coords[2], left, right, up, down;
     MPI_Comm_rank(MPI_COMM_2D, &mpi_rank);
     // Find the coordinates of a give rank
     MPI_Cart_coords(MPI_COMM_2D, mpi_rank, 2, coords);
@@ -65,14 +71,13 @@ int main() {
     MPI_Type_vector(rows, 1, cols + 2, MPI_DOUBLE, &MPI_RECV_COL);
     MPI_Type_commit(&MPI_RECV_COL);
 
-    MPI_Datatype MPI_GATHER_SUBMAT;
-    MPI_Type_vector(rows, cols, N_GRID_POINTSX, MPI_DOUBLE, &MPI_GATHER_SUBMAT);
-    MPI_Type_commit(&MPI_GATHER_SUBMAT);
-
     // Send part of matrix to ranks
     int alloc_rows = rows + 2, alloc_cols = cols + 2;
     double** matrix_piece = allocate_2d_packed_double(&alloc_rows, &alloc_cols);
     double** matrix_piece_new = allocate_2d_packed_double(&alloc_rows, &alloc_cols);
+
+    double total_temp_sum_start = 0;
+
 
     for (int i = 0; i < rows + 2; i++)
         for (int j = 0; j < cols + 2; j++)
@@ -106,6 +111,10 @@ int main() {
             u[i][0] = 0.0;
             u[i][N_GRID_POINTSY + 1] = 0.0;
         }
+        for (int i = 1; i <= N_GRID_POINTSX; i++)
+            for (int j = 1; j <= N_GRID_POINTSX; j++)
+                total_temp_sum_start += u[i][j];
+
 
         for (int i = 0; i < ranks_per_dims[0]; i++) {
             for (int j = 0; j < ranks_per_dims[1]; j++) {
@@ -120,6 +129,8 @@ int main() {
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
                 matrix_piece[i + 1][j + 1] = u[coords[0] * rows + i + 1][coords[1] * cols + j + 1];
+        free(u[0]);
+        free(u);
     }
     else {
         MPI_Recv(&matrix_piece[1][1], 1, MPI_RECV_SUBMAT, 0, mpi_rank, MPI_COMM_2D, MPI_STATUS_IGNORE);
@@ -167,14 +178,16 @@ int main() {
     double t2 = MPI_Wtime();
 
 
-    double total_temp_sum;
+    double total_temp_sum_end;
     double local_temp_sum = 0.0;
     for (int i = 1; i <= rows; i++)
         for (int j = 1; j <= cols; j++)
             local_temp_sum += matrix_piece[i][j];
-    MPI_Reduce(&local_temp_sum, &total_temp_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_2D);
-    if (mpi_rank == 0)
-        printf("Average Temperature = %10.5f\n", total_temp_sum * dx * dy / (L * L));
+    MPI_Reduce(&local_temp_sum, &total_temp_sum_end, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_2D);
+    if (mpi_rank == 0) {
+        printf("Start Average Temperature = %.10ef\n", total_temp_sum_start * dx * dy / (L * L));
+        printf("Finish Average Temperature = %.10ef\n", total_temp_sum_end * dx * dy / (L * L));
+    }
 
 
     MPI_Type_free(&MPI_SEND_SUBMAT);
@@ -186,8 +199,6 @@ int main() {
 
     MPI_Type_free(&MPI_SEND_COL);
     MPI_Type_free(&MPI_RECV_COL);
-
-    MPI_Type_free(&MPI_GATHER_SUBMAT);
 
     // Final time
     double t3 = MPI_Wtime();
@@ -215,16 +226,17 @@ int main() {
         MPI_Reduce(&dt3, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_2D);
     }
     if (mpi_rank == 0) {
-        printf("Average intiialization time per rank:            %f seconds\n", dt0 / ((double)num_of_ranks));
-        printf("Average computation time per rank:               %f seconds\n", t_computation / ((double)num_of_ranks));
-        printf("Average communication time per rank:             %f seconds\n", t_communication / ((double)num_of_ranks));
-        printf("Average computation + calculation time per rank: %f seconds\n", dt1 / ((double)num_of_ranks));
-        printf("Average reduction time per rank:                 %f seconds\n", dt2 / ((double)num_of_ranks));
-        printf("Average Total time per rank:                     %f seconds\n", dt3 / ((double)num_of_ranks));
+        printf("Average intiialization time per rank:               %f seconds\n", dt0 / ((double)num_of_ranks));
+        printf("Average computation time per rank:                  %f seconds\n", t_computation / ((double)num_of_ranks));
+        printf("Average communication time per rank:                %f seconds\n",
+               t_communication / ((double)num_of_ranks));
+        printf("Average computation + communication time per rank:  %f seconds\n", dt1 / ((double)num_of_ranks));
+        printf("Average reduction time per rank:                    %f seconds\n", dt2 / ((double)num_of_ranks));
+        printf("Average Total time per rank:                        %f seconds\n", dt3 / ((double)num_of_ranks));
     }
 
-    MPI_Finalize();
     MPI_Comm_free(&MPI_COMM_2D);
+    MPI_Finalize();
 
     return 0;
 }
