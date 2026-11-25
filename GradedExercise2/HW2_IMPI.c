@@ -3,11 +3,11 @@
 #include <stdio.h>
 #include "Libraries/arrays.h"
 
-#define N_GRID_POINTSX 512 // Grid interior points along x
-#define N_GRID_POINTSY 512 // Grid interior points along y
-#define N_TEMP_STEPS 10000   // Number of time steps
-#define D 1.0              // Thermal diffusion constant
-#define L 1.0              // Length of the side of the plane
+#define N_GRID_POINTSX 512  // Grid interior points along x
+#define N_GRID_POINTSY 512  // Grid interior points along y
+#define N_TEMP_STEPS 10000  // Number of time steps
+#define D 1.0               // Thermal diffusion constant
+#define L 1.0               // Length of the side of the plane
 
 int main() {
     MPI_Init(NULL, NULL);
@@ -40,15 +40,14 @@ int main() {
     MPI_Cart_shift(MPI_COMM_2D, 1, 1, &left, &right);
 
 
-    // Create a type to send piece of matrix
-    int rows = N_GRID_POINTSY / ranks_dimensions + 2;
-    int cols = N_GRID_POINTSX / ranks_dimensions + 2;
+    int rows = N_GRID_POINTSY / ranks_dimensions;
+    int cols = N_GRID_POINTSX / ranks_dimensions;
 
     MPI_Datatype MPI_SEND_SUBMAT, MPI_RECV_SUBMAT;
     MPI_Type_vector(rows, cols, N_GRID_POINTSX + 2, MPI_DOUBLE, &MPI_SEND_SUBMAT);
     MPI_Type_commit(&MPI_SEND_SUBMAT);
 
-    MPI_Type_vector(rows, cols, cols, MPI_DOUBLE, &MPI_RECV_SUBMAT);
+    MPI_Type_vector(rows, cols, cols + 2, MPI_DOUBLE, &MPI_RECV_SUBMAT);
     MPI_Type_commit(&MPI_RECV_SUBMAT);
 
     MPI_Datatype MPI_SEND_ROW, MPI_RECV_ROW, MPI_SEND_COL, MPI_RECV_COL;
@@ -59,16 +58,20 @@ int main() {
     MPI_Type_contiguous(cols, MPI_DOUBLE, &MPI_RECV_ROW);
     MPI_Type_commit(&MPI_RECV_ROW);
 
-    MPI_Type_vector(rows, 1, cols, MPI_DOUBLE, &MPI_SEND_COL);
+    MPI_Type_vector(rows, 1, cols + 2, MPI_DOUBLE, &MPI_SEND_COL);
     MPI_Type_commit(&MPI_SEND_COL);
 
-    MPI_Type_vector(rows, 1, cols, MPI_DOUBLE, &MPI_RECV_COL);
+    MPI_Type_vector(rows, 1, cols + 2, MPI_DOUBLE, &MPI_RECV_COL);
     MPI_Type_commit(&MPI_RECV_COL);
 
     // Send part of matrix to ranks
+    int alloc_rows = rows + 2, alloc_cols = cols + 2;
+    double** matrix_piece = allocate_2d_packed_double(&alloc_rows, &alloc_cols);
+    double** matrix_piece_new = allocate_2d_packed_double(&alloc_rows, &alloc_cols);
 
-    double** matrix_piece = allocate_2d_packed_double(&rows, &cols);
-    double** matrix_piece_new = allocate_2d_packed_double(&rows, &cols);
+    for (int i = 0; i < rows + 2; i++)
+        for (int j = 0; j < cols + 2; j++)
+            matrix_piece[i][j] = matrix_piece_new[i][j] = 0.0;
 
     double dx = L / (N_GRID_POINTSX + 1);
     double dy = L / (N_GRID_POINTSY + 1);
@@ -105,36 +108,36 @@ int main() {
                 MPI_Cart_coords(MPI_COMM_2D, i * ranks_dimensions + j, 2, r_coords);
                 if (i * ranks_dimensions + j == 0)
                     continue;
-                MPI_Send(&u[r_coords[0] * (rows - 2)][r_coords[1] * (cols - 2)], 1, MPI_SEND_SUBMAT,
+                MPI_Send(&u[r_coords[0] * (rows) + 1][r_coords[1] * (cols) + 1], 1, MPI_SEND_SUBMAT,
                          i * ranks_dimensions + j, i * ranks_dimensions + j, MPI_COMM_WORLD);
             }
         }
         for (int i = 0; i < rows; i++)
             for (int j = 0; j < cols; j++)
-                matrix_piece[i][j] = u[coords[0] * (rows - 2) + i][coords[1] * (cols - 2) + j];
+                matrix_piece[i + 1][j + 1] = u[coords[0] * rows + i + 1][coords[1] * cols + j + 1];
     }
     else {
-        MPI_Recv(&matrix_piece[0][0], 1, MPI_RECV_SUBMAT, 0, mpi_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        MPI_Recv(&matrix_piece[1][1], 1, MPI_RECV_SUBMAT, 0, mpi_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
 
 
     for (int step = 1; step <= N_TEMP_STEPS; step++) {
-        MPI_Sendrecv(&matrix_piece[1][0], 1, MPI_SEND_ROW, up, 0,
-                     &matrix_piece[rows - 1][0], 1, MPI_RECV_ROW, down, 0,
+        MPI_Sendrecv(&matrix_piece[1][1], 1, MPI_SEND_ROW, up, 0,
+                     &matrix_piece[rows + 1][1], 1, MPI_RECV_ROW, down, 0,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
-        MPI_Sendrecv(&matrix_piece[rows - 2][0], 1, MPI_SEND_ROW, down, 1,
-                     &matrix_piece[0][0], 1, MPI_RECV_ROW, up, 1,
+        MPI_Sendrecv(&matrix_piece[rows][1], 1, MPI_SEND_ROW, down, 1,
+                     &matrix_piece[0][1], 1, MPI_RECV_ROW, up, 1,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
-        MPI_Sendrecv(&matrix_piece[0][1], 1, MPI_SEND_COL, left, 2,
-                     &matrix_piece[0][cols - 1], 1, MPI_RECV_COL, right, 2,
+        MPI_Sendrecv(&matrix_piece[1][1], 1, MPI_SEND_COL, left, 2,
+                     &matrix_piece[1][cols + 1], 1, MPI_RECV_COL, right, 2,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
-        MPI_Sendrecv(&matrix_piece[0][cols - 2], 1, MPI_SEND_COL, right, 3,
-                     &matrix_piece[0][0], 1, MPI_RECV_COL, left, 3,
+        MPI_Sendrecv(&matrix_piece[1][cols], 1, MPI_SEND_COL, right, 3,
+                     &matrix_piece[1][0], 1, MPI_RECV_COL, left, 3,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
 
         // Update interior grid points
-        for (int i = 1; i < rows - 1; i++) {
-            for (int j = 1; j < cols - 1; j++) {
+        for (int i = 1; i < rows + 1; i++) {
+            for (int j = 1; j < cols + 1; j++) {
                 matrix_piece_new[i][j] = matrix_piece[i][j] +
                     rx * (matrix_piece[i + 1][j] - 2.0 * matrix_piece[i][j] + matrix_piece[i - 1][j]) +
                     ry * (matrix_piece[i][j + 1] - 2.0 * matrix_piece[i][j] + matrix_piece[i][j - 1]);
@@ -147,23 +150,37 @@ int main() {
     }
 
 
-    for (int i = 0; i < num_of_ranks; i++) {
-        if (mpi_rank == i) {
-            printf("%d %d\n", coords[0], coords[1]);
-            for (int j = 0; j < rows; j++) {
-                for (int k = 0; k < cols; k++) {
-                    printf("%1.3f ", matrix_piece[j][k]);
-                }
-                printf("\n");
+    MPI_Datatype MPI_GATHER_SUBMAT;
+    MPI_Type_vector(rows, cols, N_GRID_POINTSX, MPI_DOUBLE, &MPI_GATHER_SUBMAT);
+    MPI_Type_commit(&MPI_GATHER_SUBMAT);
+
+
+    if (mpi_rank == 0) {
+        int num_elementsx = N_GRID_POINTSX;
+        int num_elementsy = N_GRID_POINTSY;
+        double** u = allocate_2d_packed_double(&num_elementsx, &num_elementsy);
+
+        for (int i = 0; i < rows; i++)
+            for (int j = 0; j < cols; j++)
+                u[coords[0] * rows + i][coords[1] * cols + j] = matrix_piece[i + 1][j + 1];
+
+        int r_coords[2];
+        for (int i = 1; i < num_of_ranks; i++) {
+            MPI_Cart_coords(MPI_COMM_2D, i, 2, r_coords);
+            MPI_Recv(&u[r_coords[0] * rows][r_coords[1] * cols], 1, MPI_GATHER_SUBMAT, i, i, MPI_COMM_2D,
+                     MPI_STATUS_IGNORE);
+        }
+        for (int i = 0; i < num_elementsx; i++) {
+            for (int j = 0; j < num_elementsy; j++) {
+                printf("%1.3f ", u[i][j]);
             }
             printf("\n");
-            printf("\n");
-            fflush(stdout);
         }
-        MPI_Barrier(MPI_COMM_2D);
     }
-
-
+    else {
+        MPI_Send(&matrix_piece[1][1], 1, MPI_RECV_SUBMAT,
+                 0, mpi_rank, MPI_COMM_2D);
+    }
 
 
     MPI_Type_free(&MPI_SEND_SUBMAT);
@@ -175,6 +192,8 @@ int main() {
 
     MPI_Type_free(&MPI_SEND_COL);
     MPI_Type_free(&MPI_RECV_COL);
+
+    MPI_Type_free(&MPI_GATHER_SUBMAT);
 
     MPI_Finalize();
 
