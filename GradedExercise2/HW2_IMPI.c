@@ -125,10 +125,14 @@ int main() {
     else {
         MPI_Recv(&matrix_piece[1][1], 1, MPI_RECV_SUBMAT, 0, mpi_rank, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
     }
-    // Measure time before mathematical operations
+    // Measure time before mathematical operations and communication
     double t1 = MPI_Wtime();
 
+    double t_communication = 0.0;
+    double t_computation = 0.0;
+
     for (int step = 1; step <= N_TEMP_STEPS; step++) {
+        double communication_started = MPI_Wtime();
         MPI_Sendrecv(&matrix_piece[1][1], 1, MPI_SEND_ROW, up, 0,
                      &matrix_piece[rows + 1][1], 1, MPI_RECV_ROW, down, 0,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
@@ -142,6 +146,7 @@ int main() {
                      &matrix_piece[1][0], 1, MPI_RECV_COL, left, 3,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
 
+        double computation_started = MPI_Wtime();
         // Update interior grid points
         for (int i = 1; i < rows + 1; i++) {
             for (int j = 1; j < cols + 1; j++) {
@@ -154,6 +159,10 @@ int main() {
         double** temp = matrix_piece;
         matrix_piece = matrix_piece_new;
         matrix_piece_new = temp;
+
+        double end_iteration = MPI_Wtime();
+        t_communication += computation_started - communication_started;
+        t_computation += end_iteration - computation_started;
     }
     // Measure time after mathematical operations
     double t2 = MPI_Wtime();
@@ -186,27 +195,33 @@ int main() {
 
     // Compute time differences and print them
     double dt0 = t1 - t0; // Time taken for initialization
-    double dt1 = t2 - t1; // Time taken for calculation
+    double dt1 = t2 - t1; // Time taken for calculation and communication
     double dt2 = t3 - t2; // Time taken for reduction
     double dt3 = t3 - t0; // Total time
 
     if (mpi_rank == 0) {
         MPI_Reduce(MPI_IN_PLACE, &dt0, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(MPI_IN_PLACE, &dt1, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        MPI_Reduce(MPI_IN_PLACE, &t_computation, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        MPI_Reduce(MPI_IN_PLACE, &t_communication, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(MPI_IN_PLACE, &dt2, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(MPI_IN_PLACE, &dt3, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     }
     else {
         MPI_Reduce(&dt0, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(&dt1, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        MPI_Reduce(&t_computation, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
+        MPI_Reduce(&t_communication, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(&dt2, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(&dt3, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     }
     if (mpi_rank == 0) {
-        printf("Average intiialization time per rank: %f seconds\n", dt0 / ((double)num_of_ranks));
-        printf("Average calculation time per rank   : %f seconds\n", dt1 / ((double)num_of_ranks));
-        printf("Average reduction time per rank     : %f seconds\n", dt2 / ((double)num_of_ranks));
-        printf("Average Total time per rank         : %f seconds\n", dt3 / ((double)num_of_ranks));
+        printf("Average intiialization time per rank:            %f seconds\n", dt0 / ((double)num_of_ranks));
+        printf("Average computation time per rank:               %f seconds\n", t_computation / ((double)num_of_ranks));
+        printf("Average communication time per rank:             %f seconds\n", t_communication / ((double)num_of_ranks));
+        printf("Average computation + calculation time per rank: %f seconds\n", dt1 / ((double)num_of_ranks));
+        printf("Average reduction time per rank:                 %f seconds\n", dt2 / ((double)num_of_ranks));
+        printf("Average Total time per rank:                     %f seconds\n", dt3 / ((double)num_of_ranks));
     }
 
     MPI_Finalize();
