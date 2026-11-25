@@ -96,7 +96,7 @@ int main() {
             double x = i * dx;
             for (int j = 1; j <= N_GRID_POINTSY; j++) {
                 double y = j * dy;
-                u[i][j] = exp(-((x - L/2)*(x - L/2) + (y - L/2)*(y - L/2)) / 0.01);
+                u[i][j] = exp(-((x - L / 2) * (x - L / 2) + (y - L / 2) * (y - L / 2)) / 0.01);
             }
         }
         for (int i = 0; i <= N_GRID_POINTSY + 1; i++) {
@@ -190,25 +190,23 @@ int main() {
     double dt2 = t3 - t2; // Time taken for reduction
     double dt3 = t3 - t0; // Total time
 
-    if (mpi_rank == 0)
-    {
+    if (mpi_rank == 0) {
         MPI_Reduce(MPI_IN_PLACE, &dt0, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(MPI_IN_PLACE, &dt1, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(MPI_IN_PLACE, &dt2, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(MPI_IN_PLACE, &dt3, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     }
-    else
-    {
+    else {
         MPI_Reduce(&dt0, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(&dt1, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(&dt2, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
         MPI_Reduce(&dt3, NULL, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
     }
-    if (mpi_rank==0){
-        printf("Average intiialization time per rank: %f seconds\n", dt0/((double)num_of_ranks));
-        printf("Average calculation time per rank   : %f seconds\n", dt1/((double)num_of_ranks));
-        printf("Average reduction time per rank     : %f seconds\n", dt2/((double)num_of_ranks));
-        printf("Average Total time per rank         : %f seconds\n", dt3/((double)num_of_ranks));
+    if (mpi_rank == 0) {
+        printf("Average intiialization time per rank: %f seconds\n", dt0 / ((double)num_of_ranks));
+        printf("Average calculation time per rank   : %f seconds\n", dt1 / ((double)num_of_ranks));
+        printf("Average reduction time per rank     : %f seconds\n", dt2 / ((double)num_of_ranks));
+        printf("Average Total time per rank         : %f seconds\n", dt3 / ((double)num_of_ranks));
     }
 
     MPI_Finalize();
