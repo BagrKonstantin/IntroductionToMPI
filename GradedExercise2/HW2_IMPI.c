@@ -57,19 +57,14 @@ int main() {
     MPI_Type_vector(rows, cols, cols + 2, MPI_DOUBLE, &MPI_RECV_SUBMAT);
     MPI_Type_commit(&MPI_RECV_SUBMAT);
 
-    MPI_Datatype MPI_SEND_ROW, MPI_RECV_ROW, MPI_SEND_COL, MPI_RECV_COL;
+    MPI_Datatype MPI_SEND_ROW, MPI_SEND_COL;
 
     MPI_Type_contiguous(cols, MPI_DOUBLE, &MPI_SEND_ROW);
     MPI_Type_commit(&MPI_SEND_ROW);
 
-    MPI_Type_contiguous(cols, MPI_DOUBLE, &MPI_RECV_ROW);
-    MPI_Type_commit(&MPI_RECV_ROW);
-
     MPI_Type_vector(rows, 1, cols + 2, MPI_DOUBLE, &MPI_SEND_COL);
     MPI_Type_commit(&MPI_SEND_COL);
 
-    MPI_Type_vector(rows, 1, cols + 2, MPI_DOUBLE, &MPI_RECV_COL);
-    MPI_Type_commit(&MPI_RECV_COL);
 
     // Send part of matrix to ranks
     int alloc_rows = rows + 2, alloc_cols = cols + 2;
@@ -144,16 +139,16 @@ int main() {
     for (int step = 1; step <= N_TEMP_STEPS; step++) {
         double communication_started = MPI_Wtime();
         MPI_Sendrecv(&matrix_piece[1][1], 1, MPI_SEND_ROW, up, 0,
-                     &matrix_piece[rows + 1][1], 1, MPI_RECV_ROW, down, 0,
+                     &matrix_piece[rows + 1][1], 1, MPI_SEND_ROW, down, 0,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
         MPI_Sendrecv(&matrix_piece[rows][1], 1, MPI_SEND_ROW, down, 1,
-                     &matrix_piece[0][1], 1, MPI_RECV_ROW, up, 1,
+                     &matrix_piece[0][1], 1, MPI_SEND_ROW, up, 1,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
         MPI_Sendrecv(&matrix_piece[1][1], 1, MPI_SEND_COL, left, 2,
-                     &matrix_piece[1][cols + 1], 1, MPI_RECV_COL, right, 2,
+                     &matrix_piece[1][cols + 1], 1, MPI_SEND_COL, right, 2,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
         MPI_Sendrecv(&matrix_piece[1][cols], 1, MPI_SEND_COL, right, 3,
-                     &matrix_piece[1][0], 1, MPI_RECV_COL, left, 3,
+                     &matrix_piece[1][0], 1, MPI_SEND_COL, left, 3,
                      MPI_COMM_2D, MPI_STATUS_IGNORE);
 
         double computation_started = MPI_Wtime();
@@ -195,10 +190,7 @@ int main() {
 
 
     MPI_Type_free(&MPI_SEND_ROW);
-    MPI_Type_free(&MPI_RECV_ROW);
-
     MPI_Type_free(&MPI_SEND_COL);
-    MPI_Type_free(&MPI_RECV_COL);
 
     // Final time
     double t3 = MPI_Wtime();
