@@ -96,7 +96,7 @@ int main() {
             double x = i * dx;
             for (int j = 1; j <= N_GRID_POINTSY; j++) {
                 double y = j * dy;
-                u[i][j] = sin(M_PI * x) * sin(M_PI * y);
+                u[i][j] = exp(-((x - L/2)*(x - L/2) + (y - L/2)*(y - L/2)) / 0.01);
             }
         }
         for (int i = 0; i <= N_GRID_POINTSY + 1; i++) {
