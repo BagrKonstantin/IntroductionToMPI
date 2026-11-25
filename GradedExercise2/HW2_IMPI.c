@@ -17,9 +17,9 @@ int main() {
     MPI_Comm_rank(MPI_COMM_WORLD, &mpi_rank);
 
 
-    int ranks_dimensions = 2;
-    // TODO fix dimensions
-    int ranks_per_dims[2] = {ranks_dimensions, ranks_dimensions}; // 3x4 grid (12 processes)
+    int ranks_per_dims[2] = {0, 0};
+    // Very cool function
+    MPI_Dims_create(num_of_ranks, 2, ranks_per_dims);
     int periods[2] = {0, 0}; // Non-periodic boundaries
     int reorder = 1;
     MPI_Comm MPI_COMM_2D;
@@ -40,8 +40,8 @@ int main() {
     MPI_Cart_shift(MPI_COMM_2D, 1, 1, &left, &right);
 
 
-    int rows = N_GRID_POINTSY / ranks_dimensions;
-    int cols = N_GRID_POINTSX / ranks_dimensions;
+    int rows = N_GRID_POINTSY / ranks_per_dims[0];
+    int cols = N_GRID_POINTSX / ranks_per_dims[1];
 
     MPI_Datatype MPI_SEND_SUBMAT, MPI_RECV_SUBMAT;
     MPI_Type_vector(rows, cols, N_GRID_POINTSX + 2, MPI_DOUBLE, &MPI_SEND_SUBMAT);
@@ -102,14 +102,14 @@ int main() {
             u[i][N_GRID_POINTSY + 1] = 0.0;
         }
 
-        for (int i = 0; i < ranks_dimensions; i++) {
-            for (int j = 0; j < ranks_dimensions; j++) {
+        for (int i = 0; i < ranks_per_dims[0]; i++) {
+            for (int j = 0; j < ranks_per_dims[1]; j++) {
                 int r_coords[2];
-                MPI_Cart_coords(MPI_COMM_2D, i * ranks_dimensions + j, 2, r_coords);
-                if (i * ranks_dimensions + j == 0)
+                MPI_Cart_coords(MPI_COMM_2D, i * ranks_per_dims[1] + j, 2, r_coords);
+                if (i * ranks_per_dims[1] + j == 0)
                     continue;
-                MPI_Send(&u[r_coords[0] * (rows) + 1][r_coords[1] * (cols) + 1], 1, MPI_SEND_SUBMAT,
-                         i * ranks_dimensions + j, i * ranks_dimensions + j, MPI_COMM_WORLD);
+                MPI_Send(&u[r_coords[0] * rows + 1][r_coords[1] * cols + 1], 1, MPI_SEND_SUBMAT,
+                         i * ranks_per_dims[1] + j, i * ranks_per_dims[1] + j, MPI_COMM_WORLD);
             }
         }
         for (int i = 0; i < rows; i++)
