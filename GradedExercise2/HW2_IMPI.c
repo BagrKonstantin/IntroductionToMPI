@@ -159,56 +159,14 @@ int main() {
     double t2 = MPI_Wtime();
 
 
-    // if (mpi_rank == 0) {
-    //     int num_elementsx = N_GRID_POINTSX;
-    //     int num_elementsy = N_GRID_POINTSY;
-    //     double** u = allocate_2d_packed_double(&num_elementsx, &num_elementsy);
-    //
-    //     for (int i = 0; i < rows; i++)
-    //         for (int j = 0; j < cols; j++)
-    //             u[coords[0] * rows + i][coords[1] * cols + j] = matrix_piece[i + 1][j + 1];
-    //
-    //     int r_coords[2];
-    //     for (int i = 1; i < num_of_ranks; i++) {
-    //         MPI_Cart_coords(MPI_COMM_2D, i, 2, r_coords);
-    //         MPI_Recv(&u[r_coords[0] * rows][r_coords[1] * cols], 1, MPI_GATHER_SUBMAT, i, i, MPI_COMM_2D,
-    //                  MPI_STATUS_IGNORE);
-    //     }
-    //     for (int i = 0; i < num_elementsx; i++) {
-    //         for (int j = 0; j < num_elementsy; j++) {
-    //             printf("%10.5f\t", u[i][j]);
-    //         }
-    //         printf("\n");
-    //     }
-    //     printf("\n");
-    // }
-    // else {
-    //     MPI_Send(&matrix_piece[1][1], 1, MPI_RECV_SUBMAT,
-    //              0, mpi_rank, MPI_COMM_2D);
-    // }
-
-        for (int i = 0; i < rows; i++)
-            for (int j = 0; j < cols; j++)
-                u[coords[0] * rows + i][coords[1] * cols + j] = matrix_piece[i + 1][j + 1];
-
-        int r_coords[2];
-        for (int i = 1; i < num_of_ranks; i++) {
-            MPI_Cart_coords(MPI_COMM_2D, i, 2, r_coords);
-            MPI_Recv(&u[r_coords[0] * rows][r_coords[1] * cols], 1, MPI_GATHER_SUBMAT, i, i, MPI_COMM_2D,
-                     MPI_STATUS_IGNORE);
-        }
-        for (int i = 0; i < num_elementsx; i++) {
-            for (int j = 0; j < num_elementsy; j++) {
-                printf("%1.3f ", u[i][j]);
-            }
-            printf("\n");
-        }
-        printf("\n");
-    }
-    else {
-        MPI_Send(&matrix_piece[1][1], 1, MPI_RECV_SUBMAT,
-                 0, mpi_rank, MPI_COMM_2D);
-    }
+    double total_temp_sum;
+    double local_temp_sum = 0.0;
+    for (int i = 1; i <= rows; i++)
+        for (int j = 1; j <= cols; j++)
+            local_temp_sum += matrix_piece[i][j];
+    MPI_Reduce(&local_temp_sum, &total_temp_sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_2D);
+    if (mpi_rank == 0)
+        printf("Average Temperature = %10.5f\n", total_temp_sum * dx * dy / (L * L));
 
 
     MPI_Type_free(&MPI_SEND_SUBMAT);
