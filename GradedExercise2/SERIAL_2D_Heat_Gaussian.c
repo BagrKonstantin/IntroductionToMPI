@@ -38,12 +38,6 @@ int main()
         u[i][0] = 0.0; u[i][N_GRID_POINTSY+1] = 0.0;
     }
 
-    double total_temp_sum_start = 0;
-
-    for (int i = 1; i < num_elementsy - 1; i++)
-        for (int j = 1; j < num_elementsx - 1; j++)
-            total_temp_sum_start += u[i][j];
-
     for (int step = 1; step <= N_TEMP_STEPS; step++)
     {
         // Update interior grid points
@@ -60,13 +54,12 @@ int main()
         u_new = temp;
 
     }
-    double total_temp_sum_end = 0;
+    double total_temp_sum;
 
     for (int i = 1; i < num_elementsy - 1; i++)
         for (int j = 1; j < num_elementsx - 1; j++)
-            total_temp_sum_end += u[i][j];
-    printf("Start Average Temperature = %.10ef\n", total_temp_sum_start * dx * dy / (L * L));
-    printf("Finish Average Temperature = %.10ef\n", total_temp_sum_end * dx * dy / (L * L));
+            total_temp_sum += u[i][j];
+        printf("Average Temperature = %10.5f\n", total_temp_sum * dx * dy / (L * L));
 
     return 0;
 }
