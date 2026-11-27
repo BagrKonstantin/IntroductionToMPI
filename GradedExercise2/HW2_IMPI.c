@@ -184,14 +184,6 @@ int main() {
         printf("Finish Average Temperature = %.10ef\n", total_temp_sum_end * dx * dy / (L * L));
     }
 
-
-    MPI_Type_free(&MPI_SEND_SUBMAT);
-    MPI_Type_free(&MPI_RECV_SUBMAT);
-
-
-    MPI_Type_free(&MPI_SEND_ROW);
-    MPI_Type_free(&MPI_SEND_COL);
-
     // Final time
     double t3 = MPI_Wtime();
 
@@ -226,6 +218,13 @@ int main() {
         printf("Average reduction time per rank:                    %f seconds\n", dt2 / ((double)num_of_ranks));
         printf("Average Total time per rank:                        %f seconds\n", dt3 / ((double)num_of_ranks));
     }
+
+    MPI_Type_free(&MPI_SEND_SUBMAT);
+    MPI_Type_free(&MPI_RECV_SUBMAT);
+
+
+    MPI_Type_free(&MPI_SEND_ROW);
+    MPI_Type_free(&MPI_SEND_COL);
 
     MPI_Comm_free(&MPI_COMM_2D);
     MPI_Finalize();
