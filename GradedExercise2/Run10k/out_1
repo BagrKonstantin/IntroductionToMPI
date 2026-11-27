@@ -1,0 +1,8 @@
+Start Average Temperature = 3.1415926536e-02f
+Finish Average Temperature = 3.1264755008e-02f
+Average intiialization time per rank:               0.010092 seconds
+Average computation time per rank:                  24.304281 seconds
+Average communication time per rank:                0.000864 seconds
+Average computation + communication time per rank:  24.305819 seconds
+Average reduction time per rank:                    0.000936 seconds
+Average Total time per rank:                        24.316848 seconds
